@@ -36,7 +36,7 @@ for cast_d in cast_data:
         # movie_name=movie_d.text
         # movie['title']=movie_d.text
         # print(movie)
-        
+
         movie_name=movie_d.text
         print(movie_name)
     
@@ -53,7 +53,7 @@ for cast_d in cast_data:
     Data={
        'name':Actor_Actress,
        'link':data_link,
-       'Movie':[{
+        'Movie':[{
         'Title':movie_name,
         'Year':year
        }]
