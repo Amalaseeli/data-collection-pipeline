@@ -31,6 +31,7 @@ for cast_d in cast_data:
     #     print(movie_name)
      
     movie_data=movie.findAll(name='a',attrs={'class':"knownfor-ellipsis"})
+    movie_names=[]
     for movie_d in movie_data:
         # movie={}
         # movie_name=movie_d.text
@@ -38,13 +39,17 @@ for cast_d in cast_data:
         # print(movie)
 
         movie_name=movie_d.text
-        print(movie_name)
+        movie_names.append(movie_name)
+
+    print(movie_names)
     
-    movie_year=movie.findAll(name='div', attrs={'class':'knownfor-year'})
+    movie_years=movie.findAll(name='div', attrs={'class':'knownfor-year'})
+    movie_yrs=[]
     #movie_year=movie.findAll(name='span',attrs={'class':"knownfor-ellipsis"})
-    for movie_y in movie_year:
+    for movie_y in movie_years:
         year=movie_y.text
-        print(year)
+        movie_yrs.append(year)
+    print(movie_yrs)
     #movies=movie_data
    
     #print(movies)
@@ -54,8 +59,8 @@ for cast_d in cast_data:
        'name':Actor_Actress,
        'link':data_link,
         'Movie':[{
-        'Title':movie_name,
-        'Year':year
+        'Title':movie_names,
+        'Year':movie_yrs
        }]
       
     }
