@@ -4,7 +4,7 @@ from tkinter import Frame
 from selenium import webdriver 
 from selenium.webdriver.common.by import By
 import time
-driver = webdriver.Chrome()
+
 ''' 
 If couldn't move to specific path....
 you can still use
@@ -14,16 +14,19 @@ from webdriver_manager.chrome import ChromeDriverManager
 driver = webdriver.Chrome(ChromeDriverManager().install()) 
 '''
 
-driver.get('https://www.zoopla.co.uk/new-homes/property/london/?q=London&results_sort=newest_listings&search_source=new-homes&page_size=25&view_type=list')
-time.sleep(2)
+
 # self.driver = webdriver.Chrome(ChromeDriverManager().install())
 # my_path=driver.find_element(by=By.XPATH, value='//div[@id="css-uti5dl elit0xq13"]')
 
 # new_path = my_path.find_element(by=By.XPATH, value='./div')
 
-assert "New Homes for Sale in London - Zoopla" in driver.title
 
-def accept_cookies():
+
+def accept_cookies()-> webdriver.Chrome:
+    driver = webdriver.Chrome()
+    driver.get('https://www.zoopla.co.uk/new-homes/property/london/?q=London&results_sort=newest_listings&search_source=new-homes&page_size=25&view_type=list')
+    time.sleep(2)
+    assert "New Homes for Sale in London - Zoopla" in driver.title
     try:
         driver.switch_to.frame('gdpr-consent-notice') # This is the id of the frame
         accept_cookies_button = driver.find_element(by=By.XPATH, value='//*[@id="save"]')
@@ -39,10 +42,10 @@ def accept_cookies():
 
     except:
         pass
-    time.sleep(2)
+    
     return driver
 
-def get_links()->list:
+def get_links(driver: webdriver.Chrome)->list:
     '''Returns a list with all the links in the current page
         Returns
         -------
@@ -63,7 +66,7 @@ def get_links()->list:
 # driver.get(link)
 
 def get_properties(link):
-    dict_properties={'price':[],'Address':[],'bedrooms':[]}
+    dict_properties={'price':[],'Address':[],'Bedrooms':[]}
     for link in big_list:
         driver.get(link)
         price=driver.find_element(By.XPATH, "//p[@data-testid='price']").text
@@ -72,26 +75,22 @@ def get_properties(link):
         dict_properties['Address'].append(address)
         bedrooms=driver.find_element(By.XPATH, '//div[@class="c-PJLV c-PJLV-kQvhQW-centered-true c-PJLV-iPJLV-css"]').text
         dict_properties['Bedrooms'].append(bedrooms)
-    return dict_properties
+    print(dict_properties) 
 
-big_list=[]   
-def get_five_page_of_details(page_link):
-    
-    for i in range(5):
-        big_list.extend(get_links())
-        link=page_link[i]
-        get_properties(link)
+
         # button=driver.find_element(By.XPATH, '//li[@class="css-qhg1xn-PaginationItemPreviousAndNext-PaginationItemNext eaoxhri2"]//a')
         # button.click()
 # house_property=driver.find_element(by=By.XPATH, value='//*[@class_name="c-jiEdYR"')
 if __name__=="__main__":
-    
-
     # house_property=driver.find_element(By.XPATH, "//div[@id='listing_62736450']")
-    
-    
     driver=accept_cookies()
-    get_links()
+    big_list=[]   
+    for i in range(3):
+        big_list.extend(get_links(driver))
+        p_link=big_list[i]
+        get_properties(p_link)
+    
+    driver.quit()
 
 
 
@@ -107,4 +106,4 @@ if __name__=="__main__":
     # 
     # print(link)
     #print(listings)
-    driver.quit()
+   
