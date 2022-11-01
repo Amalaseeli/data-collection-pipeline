@@ -18,7 +18,7 @@ class AmazonSearch(unittest.TestCase):
         print(self.page_title)
         self.assertIn("Amazon", driver.title)
         self.scroll_website()    
-        # driver.execute_script("window.scrollTo(0, document.body.scrollHeight);")#Scroll down the page
+        driver.execute_script("window.scrollTo(0, document.body.scrollHeight);")#Scroll down the page
         time.sleep(1)
         elem = driver.find_element(By.XPATH, "//*[@id='twotabsearchtextbox']")
         elem.click()
