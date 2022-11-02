@@ -27,8 +27,10 @@ class AmazonSearch(unittest.TestCase):
         elem.send_keys(Keys.RETURN)
         self.assertNotIn("No results found.", driver.page_source) 
 
+
+    #If you want to scroll to a page with infinite loading, like social network ones, facebook etc.
     def scroll_website(self):
-        SCROLL_PAUSE_TIME = 0.5
+        SCROLL_PAUSE_TIME = 2.5
         # Get scroll height
         last_height = self.driver.execute_script("return document.body.scrollHeight")
         while True:

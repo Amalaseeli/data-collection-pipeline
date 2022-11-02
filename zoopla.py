@@ -39,8 +39,7 @@ class scrapper:
             pass
         
         return driver
-
-    # def get_links(driver: webdriver.Chrome)->list:
+        
     def get_links(self,driver: webdriver.Chrome)->list:
         '''Returns a list with all the links in the current page
             Returns
@@ -48,8 +47,7 @@ class scrapper:
             link_list: list
         A list with all the links in the page'''
 
-        container=driver.find_element(By.XPATH, "//div[@class='css-1kk52wv e1yhc9kr6']")
-        
+        container=driver.find_element(By.XPATH, "//div[@data-testid='regular-listings']")
         prop_list=container.find_elements(By.XPATH, ".//div[contains(@id, 'listing_627')]")
         # print(prop_list)
         link_list=[]
@@ -81,7 +79,6 @@ class scrapper:
         # button.click()
 # house_property=driver.find_element(by=By.XPATH, value='//*[@class_name="c-jiEdYR"')
 if __name__=="__main__":
-    # house_property=driver.find_element(By.XPATH, "//div[@id='listing_62736450']")
     pro=scrapper()
     driver=pro.accept_cookies()
     big_list=[]   
@@ -93,23 +90,11 @@ if __name__=="__main__":
         property_list.append(property)
     # print(page_link_list)
     print(property_list)
-    # for link in page_link_list:
-        
-        
     driver.quit()
 
 
 
     
     
-    # container=driver.find_element(By.XPATH, "//div[@class='css-1kk52wv etglsof6']")
-    # listings=container.find_elements(By.XPATH, ".//div[contains(@id, 'listing_627')]")
-    # for list in listings:
-    #     a_tag=list.find_elment(by=By.TAG_NAME,value="a")
-    #     link=a_tag.get_attribute('href')
-    #     print(link)
-    # a_tag_container.find_element(by=By.TAG_NAME, value="a" )
-    # 
-    # print(link)
-    #print(listings)
+
    
