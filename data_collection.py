@@ -1,8 +1,10 @@
 from selenium import webdriver
 from selenium.webdriver.common.by import By
+from selenium.webdriver.common.keys import Keys
+import unittest
 import time
 
-class Scrapper:
+class Scrapper(unittest.TestCase):
     def __init__(self):
         self.driver=webdriver.Chrome()
         
@@ -45,11 +47,32 @@ class Scrapper:
             if new_height == last_height:
                 break
             last_height = new_height
-
+    
+    def search_product(self):
+        driver=self.driver
+        element=driver.find_element(By.NAME, 'search')
+        element.click()
+        time.sleep(1)
+        element.send_keys('Protein Bars')
+        element.send_keys(Keys.RETURN)
+        self.assertNotIn("No results found.", driver.page_source)
+    
+    def get_links(self):
+        container=self.driver.find_element(By.XPATH, '//*[@id="mainContent"]/div[3]')
+        prop_list=container.find_elements(By.XPATH, '//*[@id="mainContent"]/div[3]/ul/li[2]')
+        item_list=[]
+        for link in prop_list:
+            a_tag=link.find_element(By.TAG_NAME, 'a').get_attribute('href')
+            item_list.append(a_tag)
+        print(item_list )   
+        return item_list   
+        
     def quit(self):
         self.driver.quit()
 
 if __name__=="__main__":
     webpage=Scrapper()
     webpage.load_and_accept_cookies()
+    #webpage.search_product()
+    webpage.get_links()
     webpage.quit()
