@@ -19,16 +19,22 @@ class Scrapper(unittest.TestCase):
          # self.driver.find_element(By.ID, 'email').send_keys("amalremi07@gmail.com")
         # self.driver.find_element(by=By.XPATH, value='//button[@class="emailReengagement_newsletterForm_submit"]').click()
         '''
-        time.sleep(2)
+        
+        self.driver.find_element(By.ID, 'email').send_keys("amalremi07@gmail.com")
+        self.driver.find_element(by=By.XPATH, value='//button[@class="emailReengagement_newsletterForm_submit"]').click()
+        time.sleep(5)
+        self.driver.find_element(by=By.XPATH, value='//button[@class="emailReengagement_close_button"]').click()
+        # self.driver.find_element(by=By.XPATH, value='//*[@class="recaptcha-checkbox-border"]/div[4]').click()
+        
+        #Clcik accept cookies
+        
         try:
-            accept_cookies_button=self.driver.find_element(by=By.XPATH, value='//button[@class="emailReengagement_close_button"]')
+            accept_cookies_button=self.driver.find_element(by=By.XPATH, value='//button[@class="cookie_modal_button"]')
             accept_cookies_button.click()
         except AttributeError:
-            accept_cookies_button=self.driver.find_element(by=By.XPATH, value='//button[@class="emailReengagement_close_button"]')
+            accept_cookies_button=self.driver.find_element(by=By.XPATH, value='//button[@class="cookie_modal_button"]')
             accept_cookies_button.click()
-        #Clcik accept cookies
-        time.sleep(2)
-        self.driver.find_element(by=By.XPATH, value='//button[@class="cookie_modal_button"]').click()
+        
         time.sleep(2)
         self.scroll_down()
         time.sleep(2)
@@ -58,13 +64,18 @@ class Scrapper(unittest.TestCase):
         self.assertNotIn("No results found.", driver.page_source)
     
     def get_links(self):
-        container=self.driver.find_element(By.XPATH, '//*[@id="mainContent"]/div[3]')
-        prop_list=container.find_elements(By.XPATH, '//*[@id="mainContent"]/div[3]/ul/li[2]')
+        self.search_product()
+
+        container=self.driver.find_elements(By.XPATH, '//a[@class="athenaProductBlock_linkImage"]')
+        #prop_list=container.find_elements(By.XPATH, '//li[@class="productListProducts_product"]')
         item_list=[]
-        for link in prop_list:
-            a_tag=link.find_element(By.TAG_NAME, 'a').get_attribute('href')
-            item_list.append(a_tag)
-        print(item_list )   
+        #print(container)
+        for link in container:
+        #     a_tag=link.find_element(By.TAG_NAME, 'a')
+            item_link=link.get_attribute('href')
+            item_list.append(item_link)
+        print(set(item_list))
+        print(len(set(item_list)))  
         return item_list   
         
     def quit(self):
@@ -73,6 +84,6 @@ class Scrapper(unittest.TestCase):
 if __name__=="__main__":
     webpage=Scrapper()
     webpage.load_and_accept_cookies()
-    #webpage.search_product()
+    
     webpage.get_links()
     webpage.quit()
