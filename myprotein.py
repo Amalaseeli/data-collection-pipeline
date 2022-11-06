@@ -36,10 +36,10 @@ class Scrapper(unittest.TestCase):
             accept_cookies_button.click()
         
         time.sleep(2)
-        self.scroll_down()
+        self.scroll_down_website_page()
         time.sleep(2)
 
-    def scroll_down(self):
+    def scroll_down_website_page(self):
         SCROLL_PAUSE_TIME = 2.5
         # Get scroll height
         last_height = self.driver.execute_script("return document.body.scrollHeight")
@@ -65,7 +65,6 @@ class Scrapper(unittest.TestCase):
     
     def get_links(self):
         self.search_product()
-
         container=self.driver.find_elements(By.XPATH, '//a[@class="athenaProductBlock_linkImage"]')
         #prop_list=container.find_elements(By.XPATH, '//li[@class="productListProducts_product"]')
         item_list=[]
