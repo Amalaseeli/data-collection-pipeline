@@ -1,6 +1,7 @@
 from selenium import webdriver
 from selenium.webdriver.common.by import By
 from selenium.webdriver.common.keys import Keys
+from selenium.webdriver.support.ui import Select
 import unittest
 import time
 
@@ -66,23 +67,42 @@ class Scrapper(unittest.TestCase):
     def get_links(self):
         self.search_product()
         container=self.driver.find_elements(By.XPATH, '//a[@class="athenaProductBlock_linkImage"]')
-        #prop_list=container.find_elements(By.XPATH, '//li[@class="productListProducts_product"]')
         item_list=[]
         #print(container)
         for link in container:
-        #     a_tag=link.find_element(By.TAG_NAME, 'a')
             item_link=link.get_attribute('href')
             item_list.append(item_link)
-        print(set(item_list))
-        print(len(set(item_list)))  
-        return item_list   
+        # print(set(item_list))
+        # print(len(set(item_list)))  
+        return item_list 
+
+    def retrive_data(self):
+        link1=self.get_links()[0] 
+        driver=self.driver
+        driver.maximize_window()
+        driver.get(link1) 
+        img=driver.find_element(By.CLASS_NAME, "athenaProductImageCarousel_image").get_attribute('src')
+        product_name=driver.find_element(By.XPATH, '//*[@id="mainContent"]/div[3]/div[2]/div/div[1]/div[2]/div/h1').text
+        #flavour=driver.find_element(By.XPATH, '//*[@id="athena-product-variation-dropdown-5"]')
+        select_item=Select(driver.find_elements(By.XPATH, '//*[@id="athena-product-variation-dropdown-5"]'))
+        # all_options= [o.get_attribute('value') for o in select_item]
+        # for x in all_options:
+        #     select_item.select_by_value(x)
+            
+        all_options=select_item.find_element(By.TAG_NAME, 'option')
+        for option in all_options:
+            print(option.get_attribute('value'))
         
+        time.sleep(3)
+
+        print(img)
+        print(product_name)
+
     def quit(self):
         self.driver.quit()
 
 if __name__=="__main__":
     webpage=Scrapper()
     webpage.load_and_accept_cookies()
-    
-    webpage.get_links()
+    webpage.retrive_data()
     webpage.quit()
