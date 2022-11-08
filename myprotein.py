@@ -15,23 +15,17 @@ class Scrapper(unittest.TestCase):
         driver.get('https://www.myprotein.com/')
 
         '''After signup it is popping up I am not robot window. So , As we know its change every time we just close the window.
-        for signup the following code will works
-        ...............
-         # self.driver.find_element(By.ID, 'email').send_keys("amalremi07@gmail.com")
-        # self.driver.find_element(by=By.XPATH, value='//button[@class="emailReengagement_newsletterForm_submit"]').click()
         '''
-        
         self.driver.find_element(By.ID, 'email').send_keys("amalremi07@gmail.com")
         self.driver.find_element(by=By.XPATH, value='//button[@class="emailReengagement_newsletterForm_submit"]').click()
         time.sleep(5)
         self.driver.find_element(by=By.XPATH, value='//button[@class="emailReengagement_close_button"]').click()
-        # self.driver.find_element(by=By.XPATH, value='//*[@class="recaptcha-checkbox-border"]/div[4]').click()
-        
         #Clcik accept cookies
         
         try:
             accept_cookies_button=self.driver.find_element(by=By.XPATH, value='//button[@class="cookie_modal_button"]')
             accept_cookies_button.click()
+
         except AttributeError:
             accept_cookies_button=self.driver.find_element(by=By.XPATH, value='//button[@class="cookie_modal_button"]')
             accept_cookies_button.click()
@@ -64,11 +58,16 @@ class Scrapper(unittest.TestCase):
         element.send_keys(Keys.RETURN)
         self.assertNotIn("No results found.", driver.page_source)
     
-    def get_links(self):
+    def get_links(self)->list:
+        '''Returns a list with all the links in the current page
+            Returns
+            -------
+            link_list: list
+        A list with all the links in the page'''
         self.search_product()
-        container=self.driver.find_elements(By.XPATH, '//a[@class="athenaProductBlock_linkImage"]')
+        container=self.driver.find_elements(By.XPATH, '//div[@class="athenaProductBlock_imageContainer"]/a')
+        
         item_list=[]
-        #print(container)
         for link in container:
             item_link=link.get_attribute('href')
             item_list.append(item_link)
@@ -76,27 +75,28 @@ class Scrapper(unittest.TestCase):
         # print(len(set(item_list)))  
         return item_list 
 
-    def retrive_data(self):
-        link1=self.get_links()[0] 
+    def retrive_data(self,link):
         driver=self.driver
+        dict_properties={}
         driver.maximize_window()
-        driver.get(link1) 
+        driver.get(link) 
         img=driver.find_element(By.CLASS_NAME, "athenaProductImageCarousel_image").get_attribute('src')
+        dict_properties['img']=img
         product_name=driver.find_element(By.XPATH, '//*[@id="mainContent"]/div[3]/div[2]/div/div[1]/div[2]/div/h1').text
-        #flavour=driver.find_element(By.XPATH, '//*[@id="athena-product-variation-dropdown-5"]')
-        select_item=Select(driver.find_elements(By.XPATH, '//*[@id="athena-product-variation-dropdown-5"]'))
-        # all_options= [o.get_attribute('value') for o in select_item]
-        # for x in all_options:
-        #     select_item.select_by_value(x)
-            
-        all_options=select_item.find_element(By.TAG_NAME, 'option')
+        dict_properties['product_name']=product_name
+        price=driver.find_element(By.XPATH,'//p[@class="productPrice_price  "]').text
+        dict_properties['price']=price
+        select_item=Select(driver.find_element(By.XPATH, '//*[@id="athena-product-variation-dropdown-5"]'))
+        all_options=select_item.options
+        flavour=[]
         for option in all_options:
-            print(option.get_attribute('value'))
-        
+            flavour.append(option.text)
+        dict_properties['flavour']=flavour
         time.sleep(3)
-
-        print(img)
-        print(product_name)
+        # print(img)
+        # print(product_name)
+        # print(flavour)
+        return dict_properties
 
     def quit(self):
         self.driver.quit()
@@ -104,5 +104,16 @@ class Scrapper(unittest.TestCase):
 if __name__=="__main__":
     webpage=Scrapper()
     webpage.load_and_accept_cookies()
-    webpage.retrive_data()
+    link_list=[]
+    item_properties=[]
+    link_list.extend(webpage.get_links())
+    for i in range(4):
+        item_link=link_list[i]
+        item_properties.append(webpage.retrive_data(item_link))
+    print(item_properties)
     webpage.quit()
+
+
+    #get_36_links
+    #return img,price,flavour
+    #dictonary prop
