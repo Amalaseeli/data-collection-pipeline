@@ -4,11 +4,14 @@ from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.support.ui import Select
 import unittest
 import time
+import datetime
+import uuid
+
 
 class Scrapper(unittest.TestCase):
     def __init__(self):
         self.driver=webdriver.Chrome()
-        self.data_dict={"img":[],'product_name':'','price':'','flavour':[]  }
+        
         
     def load_and_accept_cookies(self):
         driver=self.driver
@@ -59,7 +62,10 @@ class Scrapper(unittest.TestCase):
         element.send_keys('Protein Bars')
         element.send_keys(Keys.RETURN)
         self.assertNotIn("No results found.", driver.page_source)
-    
+        time.sleep(2)
+        self.driver.execute_script("window.scrollTo(0, 2000);")
+        #self.filter_data()
+
     def get_links(self)->list:
         '''Returns a list with all the links in the current page
             Returns
@@ -77,62 +83,78 @@ class Scrapper(unittest.TestCase):
         # print(len(set(item_list)))  
         return item_list 
 
-    def filter_data():
-        pass
-    
-    def retrive_data(self,link):
+    def filter_data(self):
+        #click vanila flavour and Gluten free
+        self.driver.find_element(By.XPATH, '//*[@id="home"]/div[5]/div[1]/aside/div/div/div[2]/div[2]/div[3]/div[2]/fieldset/label[39]/input').click
+        self.driver.execute_script("window.scrollTo(0, 1200);")
+        self.driver.find_element(By.XPATH,'//*[@id="home"]/div[5]/div[1]/aside/div/div/div[2]/div/div[4]/div[2]/fieldset/label[1]/input').click
+
+    def retrive_data(self,product_link):
+        '''Return product properties'''
         driver=self.driver
         driver.maximize_window()
-        driver.get(link)
+        driver.get(product_link)
+        start_time=time.time()
+
+        id=str(uuid.uuid4())
+        print(id)
+        Timestamp=datetime.datetime.fromtimestamp(start_time).strftime('%Y_%b_%d_%H_%M_%S_%f_%p')
+        print(Timestamp)
         img_list=[] 
-        # img_container=driver.find_element(By.CLASS_NAME, 'athenaProductImageCarousel_listItem')
-        # img_li=img_container.find_element(By.CLASS_NAME, "athenaProductImageCarousel_image").get_attribute('src')
-        # for img in img_li:
-        #     img_list.append(img)
-        
-        img=driver.find_element(By.CLASS_NAME, "athenaProductImageCarousel_image").get_attribute('src')
-        
+        img_li=driver.find_elements(By.CLASS_NAME, "athenaProductImageCarousel_thumbnail")
+        for img in img_li:
+             img_list.append(img.get_attribute('src'))
+
         product_name=driver.find_element(By.XPATH, '//*[@id="mainContent"]/div[3]/div[2]/div/div[1]/div[2]/div/h1').text
-        #dict_properties['product_name']=product_name
         price=driver.find_element(By.XPATH,'//p[@class="productPrice_price  "]').text
-        #dict_properties['price']=price
         select_item=Select(driver.find_element(By.XPATH, '//*[@id="athena-product-variation-dropdown-5"]'))
         all_options=select_item.options
         flavour=[]
         for option in all_options:
             flavour.append(option.text)
-        #dict_properties['flavour']=flavour
+        
+        
+        
         time.sleep(3)
-        # print(img)
-        # print(product_name)
-        # print(flavour)
-        return img,product_name,price,flavour
+        return id,img_list,product_name,price,flavour,Timestamp
 
     def update_data_dict(self,link):
-            img_list,product_name,price,flavour=self.retrive_data(link)
-            self.data_dict['img_list']=img_list
-            self.data_dict['product_name']=product_name
-            self.data_dict['price']=price
-            self.data_dict['flavour']=flavour
-            return self.data_dict
-    
+            id,img_list,product_name,price,flavour,Timestamp=self.retrive_data(link)
+            data_dict={}
+            data_dict['id']=id
+            data_dict['img_list']=img_list
+            data_dict['product_name']=product_name
+            data_dict['price']=price
+            data_dict['flavour']=flavour
+            data_dict['Timestamp']=Timestamp
+            print(data_dict)
+            return data_dict
+
+    def get_4_item_properties(self):
+        link_list=[]
+        item_properties=[]
+        link_list.extend(self.get_links())
+        for i in range(4):
+            item_link=link_list[i]
+            item_properties.append(self.update_data_dict(item_link))
+        print(item_properties)
+
+    def click_next_page(self):
+        Page_list=self.driver.find_elements(By.CLASS_NAME, '//*[@id="mainContent"]/div[4]/nav/ul')
+        list=Page_list[0].find_elements('li')
+        for li in list:
+            link=li.__getattribute__('src')
+            print(link)
+
+
     def quit(self):
         self.driver.quit()
 
 if __name__=="__main__":
     webpage=Scrapper()
     webpage.load_and_accept_cookies()
-    link_list=[]
-    item_properties=[]
-    link_list.extend(webpage.get_links())
-    for i in range(4):
-        item_link=link_list[i]
-        item_properties.append(webpage.update_data_dict(item_link))
-    print(item_properties)
-
+    webpage.get_4_item_properties()
     webpage.quit()
 
 
-    #get_36_links
-    #return img,price,flavour
-    #dictonary prop
+   
