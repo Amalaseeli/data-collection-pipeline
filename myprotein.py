@@ -2,11 +2,14 @@ from selenium import webdriver
 from selenium.webdriver.common.by import By
 from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.support.ui import Select
+from selenium.webdriver.common.action_chains import ActionChains
+
 import unittest
 import time
 import datetime
 import uuid
-
+import json
+import os
 
 class Scrapper(unittest.TestCase):
     def __init__(self):
@@ -63,7 +66,7 @@ class Scrapper(unittest.TestCase):
         element.send_keys(Keys.RETURN)
         self.assertNotIn("No results found.", driver.page_source)
         time.sleep(2)
-        self.driver.execute_script("window.scrollTo(0, 2000);")
+        #self.driver.execute_script("window.scrollTo(0, 2000);")
         #self.filter_data()
 
     def get_links(self)->list:
@@ -112,39 +115,73 @@ class Scrapper(unittest.TestCase):
         flavour=[]
         for option in all_options:
             flavour.append(option.text)
-        
-        
-        
         time.sleep(3)
         return id,img_list,product_name,price,flavour,Timestamp
 
     def update_data_dict(self,link):
             id,img_list,product_name,price,flavour,Timestamp=self.retrive_data(link)
-            data_dict={}
+            data_dict={'id':'','item':{},'Timestamp':''}
+            
             data_dict['id']=id
-            data_dict['img_list']=img_list
-            data_dict['product_name']=product_name
-            data_dict['price']=price
-            data_dict['flavour']=flavour
+            data_dict['item']['img_list']=img_list
+            data_dict['item']['product_name']=product_name
+            data_dict['item']['price']=price
+            data_dict['item']['flavour']=flavour
             data_dict['Timestamp']=Timestamp
+            print(type(data_dict))
+            #print(data_dict.keys())
             print(data_dict)
+            
+            filename=data_dict['id']
+            self.create_folder(filename)
+            self.write_json(data_dict,filename)
+            #print(type(filename))
+            #self.write_json(data_dict,filename)
+            
             return data_dict
+
+    def create_folder(self,filename):
+        if not os.path.exists('raw_data'):
+            os.makedirs('raw_data')
+        if not os.path.exists(f'raw_data/{filename}'):
+            os.makedirs(f'raw_data/{filename}')
+
+    def write_json(self,data,filename):
+        with open(f'raw_data/{filename}/data.json', 'w') as file:
+            json.dump(data, file, indent = 4)
+
+
 
     def get_4_item_properties(self):
         link_list=[]
         item_properties=[]
         link_list.extend(self.get_links())
+        
         for i in range(4):
             item_link=link_list[i]
             item_properties.append(self.update_data_dict(item_link))
-        print(item_properties)
+
+        # id_list=[]
+        # for key, value in item_properties:
+        #     if key == 'id':
+        #         id_list.append(value)
+        #     print(id_list)
+        # print(item_properties)
+        
+        
+        
+    def save_data(self):
+        pass
 
     def click_next_page(self):
-        Page_list=self.driver.find_elements(By.CLASS_NAME, '//*[@id="mainContent"]/div[4]/nav/ul')
-        list=Page_list[0].find_elements('li')
-        for li in list:
-            link=li.__getattribute__('src')
-            print(link)
+        next_button=self.driver.find_element(By.XPATH, '//ul[@class="responsivePageSelectors"]')
+        next=next_button.find_element(By.XPATH, './/button[@class="responsivePaginationNavigationButton paginationNavigationButtonNext"]')
+        print(next.get_attribute("innerHTML"))
+        click_next_button=next.find_element(By.XPATH, "./*[name()='svg']")
+        time.sleep(4)
+        ActionChains(self.driver).move_to_element(click_next_button).click().perform()
+
+        #click_next_button.click()
 
 
     def quit(self):
@@ -153,8 +190,13 @@ class Scrapper(unittest.TestCase):
 if __name__=="__main__":
     webpage=Scrapper()
     webpage.load_and_accept_cookies()
-    webpage.get_4_item_properties()
-    webpage.quit()
+    
+    webpage.search_product()
+    # webpage.get_4_item_properties()
+    webpage.click_next_page()
+    #webpage.create_folder_and_files()
+    
+    #webpage.quit()
 
 
    
