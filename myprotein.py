@@ -3,6 +3,9 @@ from selenium.webdriver.common.by import By
 from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.support.ui import Select
 from selenium.webdriver.common.action_chains import ActionChains
+from selenium.common.exceptions import StaleElementReferenceException, NoSuchElementException
+from selenium.webdriver.support.ui import WebDriverWait
+from selenium.webdriver.support import expected_conditions as EC
 
 import unittest
 import time
@@ -66,6 +69,7 @@ class Scrapper(unittest.TestCase):
         element.send_keys(Keys.RETURN)
         self.assertNotIn("No results found.", driver.page_source)
         time.sleep(2)
+        # self.filter_vegetarian_protein_bars()
         #self.driver.execute_script("window.scrollTo(0, 2000);")
         #self.filter_data()
 
@@ -75,23 +79,33 @@ class Scrapper(unittest.TestCase):
             -------
             link_list: list
         A list with all the links in the page'''
-        self.search_product()
-        container=self.driver.find_elements(By.XPATH, '//div[@class="athenaProductBlock_imageContainer"]/a')
         
+        container=self.driver.find_elements(By.XPATH, '//div[@class="athenaProductBlock_imageContainer"]/a')
+
+        #container=WebDriverWait(self.driver, 10).until(EC.presence_of_element_located((By.XPATH, '//div[@class="athenaProductBlock_imageContainer"]/a')))
         item_list=[]
-        for link in container:
-            item_link=link.get_attribute('href')
-            item_list.append(item_link)
-        # print(set(item_list))
-        # print(len(set(item_list)))  
-        return item_list 
+        while True:
+            for link in container:
+                
+                item_link=link.get_attribute('href')
+                item_list.append(item_link)
+                try:
+                    action_chain = ActionChains(self.driver) 
+                    self.click_next_page()
+                    time.sleep(2)
 
-    def filter_data(self):
-        #click vanila flavour and Gluten free
-        self.driver.find_element(By.XPATH, '//*[@id="home"]/div[5]/div[1]/aside/div/div/div[2]/div[2]/div[3]/div[2]/fieldset/label[39]/input').click
-        self.driver.execute_script("window.scrollTo(0, 1200);")
-        self.driver.find_element(By.XPATH,'//*[@id="home"]/div[5]/div[1]/aside/div/div/div[2]/div/div[4]/div[2]/fieldset/label[1]/input').click
+                    self.driver.implicitly_wait(10)
+                except StaleElementReferenceException:
+                    pass
+            
+        #print(set(item_list))
+            print(len(set(item_list)))  
+            return item_list 
 
+    def filter_vegetarian_protein_bars(self):
+        self.driver.find_element(By.XPATH, '/html/body/div[4]/div[1]/aside/div/div/div[2]/div/div[1]/div[2]/fieldset/label[5]/input').click()
+        time.sleep(2)
+        
     def retrive_data(self,product_link):
         '''Return product properties'''
         driver=self.driver
@@ -100,9 +114,9 @@ class Scrapper(unittest.TestCase):
         start_time=time.time()
 
         id=str(uuid.uuid4())
-        print(id)
+        # print(id)
         Timestamp=datetime.datetime.fromtimestamp(start_time).strftime('%Y_%b_%d_%H_%M_%S_%f_%p')
-        print(Timestamp)
+        # print(Timestamp)
         img_list=[] 
         img_li=driver.find_elements(By.CLASS_NAME, "athenaProductImageCarousel_thumbnail")
         for img in img_li:
@@ -128,7 +142,7 @@ class Scrapper(unittest.TestCase):
             data_dict['item']['price']=price
             data_dict['item']['flavour']=flavour
             data_dict['Timestamp']=Timestamp
-            print(type(data_dict))
+            # print(type(data_dict))
             #print(data_dict.keys())
             print(data_dict)
             
@@ -150,38 +164,24 @@ class Scrapper(unittest.TestCase):
         with open(f'raw_data/{filename}/data.json', 'w') as file:
             json.dump(data, file, indent = 4)
 
-
-
-    def get_4_item_properties(self):
+    def get_10_item_properties(self):
         link_list=[]
         item_properties=[]
+        self.search_product()
         link_list.extend(self.get_links())
-        
-        for i in range(4):
+        for i in range(10):
             item_link=link_list[i]
             item_properties.append(self.update_data_dict(item_link))
 
-        # id_list=[]
-        # for key, value in item_properties:
-        #     if key == 'id':
-        #         id_list.append(value)
-        #     print(id_list)
-        # print(item_properties)
-        
-        
-        
-    def save_data(self):
-        pass
 
     def click_next_page(self):
         next_button=self.driver.find_element(By.XPATH, '//ul[@class="responsivePageSelectors"]')
         next=next_button.find_element(By.XPATH, './/button[@class="responsivePaginationNavigationButton paginationNavigationButtonNext"]')
-        print(next.get_attribute("innerHTML"))
         click_next_button=next.find_element(By.XPATH, "./*[name()='svg']")
-        time.sleep(4)
-        ActionChains(self.driver).move_to_element(click_next_button).click().perform()
-
-        #click_next_button.click()
+        time.sleep(5)
+        action_chain = ActionChains(self.driver)  
+        action_chain.move_to_element(click_next_button).click().perform()
+        # ActionChains(self.driver).double_click(self.driver.find_element(By.XPATH, '//div[@class="athenaProductBlock_imageContainer"]/a')).perform()
 
 
     def quit(self):
@@ -190,13 +190,19 @@ class Scrapper(unittest.TestCase):
 if __name__=="__main__":
     webpage=Scrapper()
     webpage.load_and_accept_cookies()
-    
     webpage.search_product()
-    # webpage.get_4_item_properties()
-    webpage.click_next_page()
-    #webpage.create_folder_and_files()
+    webpage.get_links()
+
+    # while True:
+    #     webpage.get_10_item_properties()
+    #     try:
+            
+    #         webpage.click_next_page()
+    #     except:
+    #         break
+   
     
-    #webpage.quit()
+    webpage.quit()
 
 
    

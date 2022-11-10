@@ -1,0 +1,21 @@
+{
+    "id": "6f423c22-1715-4689-9e0b-45ce0c80a4fa",
+    "item": {
+        "img_list": [
+            "https://static.thcdn.com/images/small/webp//productimg/130/130/12128052-1514723055825253.jpg",
+            "https://static.thcdn.com/images/small/webp//productimg/130/130/12128052-5664853153542923.jpg"
+        ],
+        "product_name": "Layered Protein Bar (Sample)",
+        "price": "\u00a32.99",
+        "flavour": [
+            "Birthday Cake",
+            "Brown Sugar",
+            "Cookies and Cream",
+            "Limited Edition Gingerbread",
+            "Milk Tea",
+            "Peanut Butter",
+            "Speculoos"
+        ]
+    },
+    "Timestamp": "2022_Nov_10_20_23_33_340001_PM"
+}
