@@ -90,7 +90,7 @@ class Scrapper(unittest.TestCase):
         print(len(set(item_list)))  
         return item_list
 
-    def retrive_data(self,product_link):
+    def retrieve_data(self,product_link):
         '''Return product properties'''
         driver=self.driver
         driver.maximize_window()
@@ -119,7 +119,7 @@ class Scrapper(unittest.TestCase):
         return id,img_list,product_name,price,flavour,Timestamp
 
     def update_data_dict(self,link):
-            id,img_list,product_name,price,flavour,Timestamp=self.retrive_data(link)
+            id,img_list,product_name,price,flavour,Timestamp=self.retrieve_data(link)
             data_dict={'id':'','item':{},'Timestamp':''}
             
             data_dict['id']=id
