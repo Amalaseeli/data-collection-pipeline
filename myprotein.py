@@ -97,7 +97,7 @@ class Scrapper(unittest.TestCase):
         img_li=driver.find_elements(By.CLASS_NAME, "athenaProductImageCarousel_thumbnail")
         for img in img_li:
             img_list.append(img.get_attribute('src'))
-            self._download_img(product_link,fp)
+            self._download_img(img.get_attribute('src'),fp)
             
         product_name=driver.find_element(By.XPATH, '//*[@id="mainContent"]/div[3]/div[2]/div/div[1]/div[2]/div/h1').text
         price=driver.find_element(By.XPATH,'//p[@class="productPrice_price  "]').text
@@ -107,6 +107,7 @@ class Scrapper(unittest.TestCase):
         for option in all_options:
             flavour.append(option.text)
         time.sleep(3)
+        print(img_list)
         return id,img_list,product_name,price,flavour,Timestamp
 
     def _update_data_dict(self,link):
@@ -170,10 +171,10 @@ class Scrapper(unittest.TestCase):
             with open(f'images/{filepath}.jpg', 'wb') as file:
                 shutil.copyfileobj(img_data.raw,file)
             print("Image downloaded successfully", file)
-        # urllib.request.urlretrieve(link, filepath)
+        
         else:
             print("Image couldn\'t downloaded")
-            
+
     def quit(self):
         self.driver.quit()
 
