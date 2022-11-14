@@ -4,6 +4,7 @@ from tkinter import Frame
 from selenium import webdriver 
 from selenium.webdriver.common.by import By
 import time
+from selenium.webdriver.common.action_chains import ActionChains
 
 ''' 
 If couldn't move to specific path....
@@ -59,6 +60,36 @@ class scrapper:
             # print(link_list)
         return link_list
 
+    
+    def _click_next_buton_get_all_links(self):
+        next_button=self.driver.find_element(By.XPATH, '//ul[@class="responsivePageSelectors"]')
+        next=next_button.find_element(By.XPATH, './/button[@class="responsivePaginationNavigationButton paginationNavigationButtonNext"]')
+        click_next_button=next.find_element(By.XPATH, "./*[name()='svg']")
+        ActionChains(self.driver).move_to_element(click_next_button).click().perform()
+        time.sleep(5)
+
+        item=[]
+        try:
+        
+            while True:
+                time.sleep(2)
+                link_of_items=self._create_list_of_website_links()
+                for link in link_of_items:
+                    item.append(link)
+                    
+                print(len(item))
+                print(item)    
+                ActionChains(self.driver).move_to_element(click_next_button).click().perform()
+                self.driver.execute_script("window.scrollTo(0, 4000);")
+                # if 'disabled' in click_next_button.get_attribute('class'):
+                #     break
+                time.sleep(2)
+                
+            # return item   
+        except Exception as e:
+            print(e)
+        #print(item)  
+        return item 
 
     def get_properties(self,link):
         dict_properties={}

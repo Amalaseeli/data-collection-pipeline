@@ -51,23 +51,4 @@ if __name__ == "__main__":
     unittest.main()
 
 
-# item=[]
-        # try:
-        
-        #     while True:
-        #         time.sleep(2)
-        #         link_of_items=self.get_links()
-        #         for link in link_of_items:
-        #             item.append(link)
-        #             # print(item)
-        #         ActionChains(self.driver).move_to_element(click_next_button).click().perform()
-        #         self.driver.execute_script("window.scrollTo(0, 4000);")
-        #         # if 'disabled' in click_next_button.get_attribute('class'):
-        #         #     break
-        #         time.sleep(2)
-        #     #print(item)
-        #     # return item   
-        # except:
-        #     pass 
-        # # print(item)  
-        # return item 
+

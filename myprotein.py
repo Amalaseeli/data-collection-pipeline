@@ -5,7 +5,10 @@ from selenium.webdriver.support.ui import Select
 from selenium.webdriver.common.action_chains import ActionChains
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
+from selenium.common.exceptions import NoSuchElementException
+import shutil
 import requests
+import urllib.request
 import unittest
 import time
 import datetime
@@ -30,7 +33,6 @@ class Scrapper(unittest.TestCase):
         time.sleep(5)
         self.driver.find_element(by=By.XPATH, value='//button[@class="emailReengagement_close_button"]').click()
         #Clcik accept cookies
-        
         try:
             accept_cookies_button=self.driver.find_element(by=By.XPATH, value='//button[@class="cookie_modal_button"]')
             accept_cookies_button.click()
@@ -75,14 +77,10 @@ class Scrapper(unittest.TestCase):
         A list with all the links in the page'''
         
         web_element_list=self.driver.find_elements(By.XPATH, '//div[@class="athenaProductBlock_imageContainer"]/a')
-
-        #container=WebDriverWait(self.driver, 10).until(EC.presence_of_element_located((By.XPATH, '//div[@class="athenaProductBlock_imageContainer"]/a')))
         item_list=[]
         for element in web_element_list:
             item_link=element.get_attribute('href')
-            item_list.append(item_link)
-            
-        print(len(set(item_list)))  
+            item_list.append(item_link)  
         return item_list
 
     def _retrieve_data(self,product_link):
@@ -111,7 +109,7 @@ class Scrapper(unittest.TestCase):
         time.sleep(3)
         return id,img_list,product_name,price,flavour,Timestamp
 
-    def update_data_dict(self,link):
+    def _update_data_dict(self,link):
             id,img_list,product_name,price,flavour,Timestamp=self._retrieve_data(link)
             data_dict={'id':'','item':{},'Timestamp':''}
             
@@ -123,58 +121,66 @@ class Scrapper(unittest.TestCase):
             data_dict['Timestamp']=Timestamp
             print(data_dict)
             filename=data_dict['id']
-            self._create_folder_json(filename)
-            self._write_json(data_dict,filename)
+            self.__create_folder_json(filename)
+            self.__write_json(data_dict,filename)
             return data_dict
 
-    def _create_folder_json(self,filename):
+    def __create_folder_json(self,filename):
         if not os.path.exists('raw_data'):
             os.makedirs('raw_data')
         if not os.path.exists(f'raw_data/{filename}'):
             os.makedirs(f'raw_data/{filename}')
 
-    def _create_folder_images(self):
+    def __create_folder_images(self):
         if not os.path.exists('images'):
             os.makedirs('images')
     
-    def _write_json(self,data,filename):
+    def __write_json(self,data,filename):
         with open(f'raw_data/{filename}/data.json', 'w') as file:
             json.dump(data, file, indent = 4)
 
-    def _get_25_item_properties(self):
+    def _get_20_item_properties(self):
         link_list=[]
         item_properties=[]
-        self._search_product()
         while True:
-            link_list.extend(self._create_list_of_website_links())
-            for i in range(25):
-                item_link=link_list[i]
-                item_properties.append(self.update_data_dict(item_link))
-            self.driver.get('https://www.myprotein.com/nutrition/healthy-food-drinks/protein-bars.list?search=protein+bar')
-            self.click_next_buton()
+            list_of_items = self._create_list_of_website_links()
+            print(list_of_items)
+            link_list.extend(list_of_items)
+            try:
+                    for i in range(20):
+                        item_link = link_list[i]
+                        item_properties.append(self._update_data_dict(item_link))    
+            except NoSuchElementException:
+                break
             return item_properties
 
-    def _click_next_buton(self):
-        next_button=self.driver.find_element(By.XPATH, '//ul[@class="responsivePageSelectors"]')
-        next=next_button.find_element(By.XPATH, './/button[@class="responsivePaginationNavigationButton paginationNavigationButtonNext"]')
-        click_next_button=next.find_element(By.XPATH, "./*[name()='svg']")
-        ActionChains(self.driver).move_to_element(click_next_button).click().perform()
-        time.sleep(5)
-        
+    def _navigate_to_each_page_and_get_properties(self):
+        self._search_product()
+        for i in range(1,3):
+            url=f'https://www.myprotein.com/nutrition/healthy-food-drinks/protein-bars.list?search=protein+bar&pageNumber={i}'
+            self.driver.get(url)
+            self._get_20_item_properties()
+
     def _download_img(self,link,filepath):
-        self._create_folder_images()
-        img_data = requests.get(link).content
-        with open(f'images/{filepath}.jpg', 'wb') as handler:
-            handler.write(img_data)
-  
+        self.__create_folder_images()
+        img_data = requests.get(link, stream=True, timeout=5)
+        if img_data.status_code == 200:
+            img_data.raw.decode_content=True
+
+            with open(f'images/{filepath}.jpg', 'wb') as file:
+                shutil.copyfileobj(img_data.raw,file)
+            print("Image downloaded successfully", file)
+        # urllib.request.urlretrieve(link, filepath)
+        else:
+            print("Image couldn\'t downloaded")
+            
     def quit(self):
         self.driver.quit()
 
 if __name__=="__main__":
     webpage=Scrapper()
     webpage._load_and_accept_cookies()
-    webpage._get_25_item_properties()
-    
+    webpage._navigate_to_each_page_and_get_properties()
     webpage.quit()
 
 
