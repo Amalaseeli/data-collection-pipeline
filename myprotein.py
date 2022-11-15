@@ -21,6 +21,7 @@ class Scrapper(unittest.TestCase):
         self.driver=webdriver.Chrome()
         
     def _load_and_accept_cookies(self):
+        '''Close the signup page and click accept cookies button'''
         driver=self.driver
         driver.maximize_window()
         driver.get('https://www.myprotein.com/')
@@ -45,6 +46,7 @@ class Scrapper(unittest.TestCase):
         
 
     def _scroll_down_website_page(self):
+        ''' Scroll the website'''
         SCROLL_PAUSE_TIME = 2.5
         # Get scroll height
         last_height = self.driver.execute_script("return document.body.scrollHeight")
@@ -111,6 +113,11 @@ class Scrapper(unittest.TestCase):
         return id,img_list,product_name,price,flavour,Timestamp
 
     def _update_data_dict(self,link):
+            '''Scrap the data of each item and save it to the dictionary. 
+            return
+            data_dict: Dictionary
+            The properties of each item.
+            '''
             id,img_list,product_name,price,flavour,Timestamp=self._retrieve_data(link)
             data_dict={'id':'','item':{},'Timestamp':''}
             
@@ -126,21 +133,26 @@ class Scrapper(unittest.TestCase):
             self.__write_json(data_dict,filename)
             return data_dict
 
-    def __create_folder_json(self,filename):
+    @staticmethod
+    def __create_folder_json(filename):
         if not os.path.exists('raw_data'):
             os.makedirs('raw_data')
         if not os.path.exists(f'raw_data/{filename}'):
             os.makedirs(f'raw_data/{filename}')
 
-    def __create_folder_images(self):
+    @staticmethod
+    def __create_folder_images():
         if not os.path.exists('images'):
             os.makedirs('images')
     
-    def __write_json(self,data,filename):
+    @staticmethod
+    def __write_json(data,filename):
+        '''Save the data in JSON format '''
         with open(f'raw_data/{filename}/data.json', 'w') as file:
             json.dump(data, file, indent = 4)
 
     def _get_20_item_properties(self):
+        '''Get the properties of 20 items on the specific page'''
         link_list=[]
         item_properties=[]
         while True:
@@ -148,14 +160,16 @@ class Scrapper(unittest.TestCase):
             print(list_of_items)
             link_list.extend(list_of_items)
             try:
-                    for i in range(20):
-                        item_link = link_list[i]
-                        item_properties.append(self._update_data_dict(item_link))    
+                for i in range(20):
+                    item_link = link_list[i]
+                    item_properties.append(self._update_data_dict(item_link))    
             except NoSuchElementException:
                 break
             return item_properties
 
     def _navigate_to_each_page_and_get_properties(self):
+        '''It will navigate to each product link one by one and scarp the properties of the specific images '''
+
         self._search_product()
         for i in range(1,3):
             url=f'https://www.myprotein.com/nutrition/healthy-food-drinks/protein-bars.list?search=protein+bar&pageNumber={i}'
@@ -163,6 +177,11 @@ class Scrapper(unittest.TestCase):
             self._get_20_item_properties()
 
     def _download_img(self,link,filepath):
+        '''Download the image locally.
+
+        link: image link 
+        filepath: It specifies the file path to save the image locally
+        '''
         self.__create_folder_images()
         img_data = requests.get(link, stream=True, timeout=5)
         if img_data.status_code == 200:
@@ -171,7 +190,6 @@ class Scrapper(unittest.TestCase):
             with open(f'images/{filepath}.jpg', 'wb') as file:
                 shutil.copyfileobj(img_data.raw,file)
             print("Image downloaded successfully", file)
-        
         else:
             print("Image couldn\'t downloaded")
 
