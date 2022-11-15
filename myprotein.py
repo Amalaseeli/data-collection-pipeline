@@ -9,18 +9,46 @@ from selenium.common.exceptions import NoSuchElementException
 import shutil
 import requests
 import urllib.request
-import unittest
+#import unittest
 import time
 import datetime
 import uuid
 import json
 import os
+import unittest
 
 class Scrapper(unittest.TestCase):
+    ''' This class will scrap data from Myprotein.com
+    This module Search for protein bar
+    It collect each item properties for next two pages.
+    Save the collected data locally in to the dictionary which is stored in to raw_data folder as JSON format.
+    And Every images of the product downloaded and saved it in to the images folder
+
+    Eample output:
+
+    {
+    "id": "685d7f4a-514a-4982-bd76-ed6192cdc3cc",
+    "item": {
+        "img_list": [
+            "https://static.thcdn.com/images/small/webp//productimg/130/130/13103445-4754910987132943.jpg",
+            "https://static.thcdn.com/images/small/webp//productimg/130/130/13103445-1534944407675352.jpg"
+        ],
+        "product_name": "Impact Protein Bar (Sample)",
+        "price": "\u00a31.74",
+        "flavour": [
+            "Caramel Nut",
+            "Chocolate Orange",
+            "Cookies and Cream",
+            "Peanut Butter"
+        ]
+    },
+    "Timestamp": "2022_Nov_14_15_24_31_644692_PM"
+     '''
+
     def __init__(self):
         self.driver=webdriver.Chrome()
         
-    def _load_and_accept_cookies(self):
+    def load_and_accept_cookies(self):
         '''Close the signup page and click accept cookies button'''
         driver=self.driver
         driver.maximize_window()
@@ -30,16 +58,17 @@ class Scrapper(unittest.TestCase):
         '''
         time.sleep(2)
         self.driver.find_element(By.ID, 'email').send_keys("am2027@gmail.com")
-        self.driver.find_element(by=By.XPATH, value='//button[@class="emailReengagement_newsletterForm_submit"]').click()
+        self.driver.find_element(by = By.XPATH, value = '//button[@class="emailReengagement_newsletterForm_submit"]').click()
         time.sleep(5)
-        self.driver.find_element(by=By.XPATH, value='//button[@class="emailReengagement_close_button"]').click()
+        #close signup page
+        self.driver.find_element(by = By.XPATH, value = '//button[@class="emailReengagement_close_button"]').click()
         #Clcik accept cookies
         try:
-            accept_cookies_button=self.driver.find_element(by=By.XPATH, value='//button[@class="cookie_modal_button"]')
+            accept_cookies_button = self.driver.find_element(by=By.XPATH, value = '//button[@class="cookie_modal_button"]')
             accept_cookies_button.click()
 
         except AttributeError:
-            accept_cookies_button=self.driver.find_element(by=By.XPATH, value='//button[@class="cookie_modal_button"]')
+            accept_cookies_button = self.driver.find_element(by=By.XPATH, value = '//button[@class="cookie_modal_button"]')
             accept_cookies_button.click()
         
         time.sleep(2)
@@ -61,9 +90,10 @@ class Scrapper(unittest.TestCase):
                 break
             last_height = new_height
     
-    def _search_product(self):
-        driver=self.driver
-        element=driver.find_element(By.NAME, 'search')
+    def search_product(self):
+        'This method search protein bars'
+        driver = self.driver
+        element = driver.find_element(By.NAME, 'search')
         element.click()
         time.sleep(1)
         element.send_keys('Protein Bars')
@@ -78,33 +108,43 @@ class Scrapper(unittest.TestCase):
             link_list: list
         A list with all the links in the page'''
         
-        web_element_list=self.driver.find_elements(By.XPATH, '//div[@class="athenaProductBlock_imageContainer"]/a')
-        item_list=[]
+        web_element_list = self.driver.find_elements(By.XPATH, '//div[@class="athenaProductBlock_imageContainer"]/a')
+        item_list = []
         for element in web_element_list:
-            item_link=element.get_attribute('href')
+            item_link = element.get_attribute('href')
             item_list.append(item_link)  
         return item_list
 
     def _retrieve_data(self,product_link):
-        '''Return product properties'''
-        driver=self.driver
+        '''This method will return product properties
+
+        properties of items
+
+        id: The python will generate an individual id for each item.
+        img_list: Images of the item
+        product_name: Name of the product
+        price: the price of the product
+        flavor: Type of the flavor in which the product contains
+        timestamp: date and time when item scrap
+        '''
+        driver = self.driver
         driver.maximize_window()
         driver.get(product_link)
-        start_time=time.time()
+        start_time = time.time()
 
         id=str(uuid.uuid4())
-        Timestamp=datetime.datetime.fromtimestamp(start_time).strftime('%Y_%b_%d_%H_%M_%S_%f_%p')
-        img_list=[] 
-        fp=datetime.datetime.fromtimestamp(start_time).strftime('%d%m%Y_%f')
-        img_li=driver.find_elements(By.CLASS_NAME, "athenaProductImageCarousel_thumbnail")
+        Timestamp = datetime.datetime.fromtimestamp(start_time).strftime('%Y_%b_%d_%H_%M_%S_%f_%p')
+        img_list = [] 
+        fp = datetime.datetime.fromtimestamp(start_time).strftime('%d%m%Y_%f')
+        img_li = driver.find_elements(By.CLASS_NAME, "athenaProductImageCarousel_thumbnail")
         for img in img_li:
             img_list.append(img.get_attribute('src'))
             self._download_img(img.get_attribute('src'),fp)
             
-        product_name=driver.find_element(By.XPATH, '//*[@id="mainContent"]/div[3]/div[2]/div/div[1]/div[2]/div/h1').text
-        price=driver.find_element(By.XPATH,'//p[@class="productPrice_price  "]').text
-        select_item=Select(driver.find_element(By.XPATH, '//*[@id="athena-product-variation-dropdown-5"]'))
-        all_options=select_item.options
+        product_name = driver.find_element(By.XPATH, '//*[@id="mainContent"]/div[3]/div[2]/div/div[1]/div[2]/div/h1').text
+        price = driver.find_element(By.XPATH,'//p[@class="productPrice_price  "]').text
+        select_item = Select(driver.find_element(By.XPATH, '//*[@id="athena-product-variation-dropdown-5"]'))
+        all_options = select_item.options
         flavour=[]
         for option in all_options:
             flavour.append(option.text)
@@ -113,22 +153,24 @@ class Scrapper(unittest.TestCase):
         return id,img_list,product_name,price,flavour,Timestamp
 
     def _update_data_dict(self,link):
-            '''Scrap the data of each item and save it to the dictionary. 
+            '''This method is used to Scrap the data of each item and save it to the dictionary. 
+            args:
+            link: This link of the product
             return
             data_dict: Dictionary
             The properties of each item.
             '''
-            id,img_list,product_name,price,flavour,Timestamp=self._retrieve_data(link)
-            data_dict={'id':'','item':{},'Timestamp':''}
+            id,img_list,product_name,price,flavour,Timestamp = self._retrieve_data(link)
+            data_dict = {'id':'','item':{},'Timestamp':''}
             
-            data_dict['id']=id
-            data_dict['item']['img_list']=img_list
-            data_dict['item']['product_name']=product_name
-            data_dict['item']['price']=price
-            data_dict['item']['flavour']=flavour
-            data_dict['Timestamp']=Timestamp
+            data_dict['id'] = id
+            data_dict['item']['img_list'] = img_list
+            data_dict['item']['product_name'] = product_name
+            data_dict['item']['price'] = price
+            data_dict['item']['flavour'] = flavour
+            data_dict['Timestamp'] = Timestamp
             print(data_dict)
-            filename=data_dict['id']
+            filename = data_dict['id']
             self.__create_folder_json(filename)
             self.__write_json(data_dict,filename)
             return data_dict
@@ -152,8 +194,10 @@ class Scrapper(unittest.TestCase):
             json.dump(data, file, indent = 4)
 
     def _get_20_item_properties(self):
-        '''Get the properties of 20 items on the specific page'''
-        link_list=[]
+        '''
+        This method will return a list of properties of 20 items on the specific page
+        '''
+        link_list = []
         item_properties=[]
         while True:
             list_of_items = self._create_list_of_website_links()
@@ -167,17 +211,19 @@ class Scrapper(unittest.TestCase):
                 break
             return item_properties
 
-    def _navigate_to_each_page_and_get_properties(self):
-        '''It will navigate to each product link one by one and scarp the properties of the specific images '''
+    def navigate_to_each_page_and_get_properties(self):
+        '''
+        It will navigate to each product link one by one and scarp the properties of the specific images 
+        '''
 
-        self._search_product()
+        self.search_product()
         for i in range(1,3):
-            url=f'https://www.myprotein.com/nutrition/healthy-food-drinks/protein-bars.list?search=protein+bar&pageNumber={i}'
+            url = f'https://www.myprotein.com/nutrition/healthy-food-drinks/protein-bars.list?search=protein+bar&pageNumber={i}'
             self.driver.get(url)
             self._get_20_item_properties()
 
     def _download_img(self,link,filepath):
-        '''Download the image locally.
+        '''This method is used to download the image locally.
 
         link: image link 
         filepath: It specifies the file path to save the image locally
@@ -196,10 +242,10 @@ class Scrapper(unittest.TestCase):
     def quit(self):
         self.driver.quit()
 
-if __name__=="__main__":
+if __name__ == "__main__":
     webpage=Scrapper()
-    webpage._load_and_accept_cookies()
-    webpage._navigate_to_each_page_and_get_properties()
+    webpage.load_and_accept_cookies()
+    webpage.navigate_to_each_page_and_get_properties()
     webpage.quit()
 
 
