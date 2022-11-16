@@ -1,6 +1,7 @@
 # Data Collection Pipeline
-##  Web scraping is used to collect large information from websites.
 
+
+### It uses Python code to automatically control your browser, extract information from a website
 
 ### Packages and Installation
 <ul>
@@ -20,6 +21,7 @@
 </ol>
 
 
+### <b>Note: The system conforms running automated systems</b>
 
 
 

@@ -81,6 +81,9 @@ class ScrapperTestCase(unittest.TestCase):
     def test_navigate_to_each_page_and_get_properties(self):
         self.assertTrue(True) 
 
+    def tearDown(self) -> None:
+        self.scrapper.driver.close()
+
 if __name__ == "__main__":
   unittest.main()
 
