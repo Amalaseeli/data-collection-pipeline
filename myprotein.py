@@ -9,15 +9,15 @@ from selenium.common.exceptions import NoSuchElementException
 import shutil
 import requests
 import urllib.request
-#import unittest
+import unittest
 import time
 import datetime
 import uuid
 import json
 import os
-import unittest
 
-class Scrapper(unittest.TestCase):
+
+class Scrapper:
     ''' This class will scrap data from Myprotein.com
     This module Search for protein bar
     It collect each item properties for next two pages.
@@ -56,14 +56,21 @@ class Scrapper(unittest.TestCase):
 
         '''After signup it is popping up I am not robot window. So , As we know its change every time we just close the window.
         '''
-        time.sleep(2)
-        self.driver.find_element(By.ID, 'email').send_keys("am2027@gmail.com")
-        self.driver.find_element(by = By.XPATH, value = '//button[@class="emailReengagement_newsletterForm_submit"]').click()
-        time.sleep(5)
+        # try:
+          
+       
+        # except:
+        #     pass
+        # WebDriverWait(self.driver, 20).until(EC.presence_of_element_located((By.ID, 'email')))
+      
         #close signup page
-        self.driver.find_element(by = By.XPATH, value = '//button[@class="emailReengagement_close_button"]').click()
-        #Clcik accept cookies
+        
         try:
+            time.sleep(3)
+            self.driver.find_element(By.ID, 'email').send_keys("am2027@gmail.com")
+            self.driver.find_element(by = By.XPATH, value = '//button[@class="emailReengagement_newsletterForm_submit"]').click()
+            time.sleep(5)
+            self.driver.find_element(by = By.XPATH, value = '//button[@class="emailReengagement_close_button"]').click()
             accept_cookies_button = self.driver.find_element(by=By.XPATH, value = '//button[@class="cookie_modal_button"]')
             accept_cookies_button.click()
 
@@ -95,10 +102,10 @@ class Scrapper(unittest.TestCase):
         driver = self.driver
         element = driver.find_element(By.NAME, 'search')
         element.click()
-        time.sleep(1)
+        time.sleep(3)
         element.send_keys('Protein Bars')
         element.send_keys(Keys.RETURN)
-        self.assertNotIn("No results found.", driver.page_source)
+        # self.assertNotIn("No results found.", driver.page_source)
         time.sleep(2)
        
     def _create_list_of_website_links(self)->list:
@@ -112,7 +119,8 @@ class Scrapper(unittest.TestCase):
         item_list = []
         for element in web_element_list:
             item_link = element.get_attribute('href')
-            item_list.append(item_link)  
+            item_list.append(item_link)
+        print(len(item_list)) 
         return item_list
 
     def _retrieve_data(self,product_link):
@@ -247,6 +255,8 @@ if __name__ == "__main__":
     webpage.load_and_accept_cookies()
     webpage.navigate_to_each_page_and_get_properties()
     webpage.quit()
+
+
 
 
    
