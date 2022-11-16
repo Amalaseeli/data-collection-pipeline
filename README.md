@@ -21,7 +21,7 @@
 </ol>
 
 
-### <b>Note: The system conforms running automated systems</b>
+### <b>Note: The system conforms running automated testing</b>
 
 
 
