@@ -1,0 +1,19 @@
+{
+    "id": "898d9ba1-259c-4c0e-9342-0fdf0a39f0c4",
+    "item": {
+        "img_list": [
+            "https://static.thcdn.com/images/small/webp//productimg/130/130/10637004-6104909074432234.jpg",
+            "https://static.thcdn.com/images/small/webp//productimg/130/130/10637004-2244909074484695.jpg"
+        ],
+        "product_name": "Protein Cookie",
+        "price": "\u00a324.99",
+        "flavour": [
+            "Chocolate Orange",
+            "Cookies & Cream",
+            "Double Chocolate",
+            "Oat & Raisin",
+            "White Chocolate Almond"
+        ]
+    },
+    "Timestamp": "2022_Nov_17_15_35_35_764440_PM"
+}
