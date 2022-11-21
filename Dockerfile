@@ -1,6 +1,6 @@
 FROM python:latest
 COPY . . 
-RUN pip install -r requirements.txt
+RUN python -m pip install -r requirements.txt
 
 
 # install google chrome
@@ -15,5 +15,8 @@ RUN wget -O /tmp/chromedriver.zip http://chromedriver.storage.googleapis.com/`cu
 RUN unzip /tmp/chromedriver.zip chromedriver -d /usr/local/bin/
 
 RUN pip3 --version
+RUN python -m pip install selenium 
+RUN python -m pip install requests
+RUN python -m pip install --upgrade pip
 
-CMD ["python", "myprotein.py"]
+CMD ["python", "myprotein.py"]d
