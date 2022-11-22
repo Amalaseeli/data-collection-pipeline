@@ -9,9 +9,9 @@ RUN sh -c 'echo "deb [arch=amd64] http://dl.google.com/linux/chrome/deb/ stable 
 RUN apt-get -y update
 RUN apt-get install -y google-chrome-stable
 
-# install chromedriver
-RUN apt-get install -yqq unzip
+#install chromedriver
 RUN wget -O /tmp/chromedriver.zip http://chromedriver.storage.googleapis.com/`curl -sS chromedriver.storage.googleapis.com/LATEST_RELEASE`/chromedriver_linux64.zip
+RUN apt-get install -yqq unzip
 RUN unzip /tmp/chromedriver.zip chromedriver -d /usr/local/bin/
 
 RUN pip3 --version
@@ -19,4 +19,4 @@ RUN python -m pip install selenium
 RUN python -m pip install requests
 RUN python -m pip install --upgrade pip
 
-CMD ["python", "myprotein.py"]d
+CMD ["python", "myprotein.py"]
