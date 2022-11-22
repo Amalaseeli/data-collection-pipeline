@@ -53,14 +53,8 @@ class Scrapper:
         options.add_argument("--start-maximized") # open Browser in maximized mode
         options.add_argument('--headless')
         options.add_argument("--window-size=1920,1080")
-
-        # options.add_argument("--disable-infobars") # disabling infobars
-        # options.add_argument("--disable-extensions") # disabling extensions
-        # options.add_argument("--disable-gpu") # applicable to windows os only
         options.add_argument("--disable-dev-shm-usage") #overcome limited resource problems
         options.add_argument("--no-sandbox") # Bypass OS security model
-        # options.add_argument('user-agent=Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/107.0.0.0 Safari/537.36')
-        
         self.driver = webdriver.Chrome(options = options)
         # self.driver=webdriver.Chrome()
         
@@ -72,14 +66,6 @@ class Scrapper:
 
         '''After signup it is popping up I am not robot window. So , As we know its change every time we just close the window.
         '''
-        # try:
-          
-       
-        # except:
-        #     pass
-        # WebDriverWait(self.driver, 20).until(EC.presence_of_element_located((By.ID, 'email')))
-      
-        #close signup page
         
         try:
             time.sleep(3)
