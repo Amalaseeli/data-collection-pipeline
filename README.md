@@ -22,6 +22,7 @@
 
 
 ### <b>Note: The system conforms running automated testing</b>
+### This application uses a CI/CD pipeline with the help of DockerContainer and Github actions for automating the applications build, test and deployment process.
 
 
 
