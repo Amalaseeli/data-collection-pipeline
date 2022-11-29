@@ -56,14 +56,14 @@ class Scrapper:
         options.add_argument("--disable-dev-shm-usage") #overcome limited resource problems
         options.add_argument("--no-sandbox") # Bypass OS security model
         self.driver = webdriver.Chrome(options = options)
-        # self.driver=webdriver.Chrome()
-        
-    def load_and_accept_cookies(self):
-        '''Close the signup page and click accept cookies button'''
+        self._load_and_accept_cookies()
         driver=self.driver
         driver.maximize_window()
         driver.get('https://www.myprotein.com/')
 
+    def _load_and_accept_cookies(self):
+        '''Close the signup page and click accept cookies button'''
+        
         '''After signup it is popping up I am not robot window. So , As we know its change every time we just close the window.
         '''
         
@@ -77,7 +77,7 @@ class Scrapper:
             accept_cookies_button.click()
 
         except AttributeError:
-            accept_cookies_button = self.driver.find_element(by=By.XPATH, value = '//button[@class="cookie_modal_button"]')
+            accept_cookies_button = self.driver.find_element(by = By.XPATH, value = '//button[@class="cookie_modal_button"]')
             accept_cookies_button.click()
         
         time.sleep(2)
@@ -126,7 +126,7 @@ class Scrapper:
         print(len(item_list)) 
         return item_list
 
-    def _retrieve_data(self,product_link):
+    def _retrieve_data(self, product_link):
         '''This method will return product properties
 
         properties of items
@@ -156,35 +156,35 @@ class Scrapper:
         price = driver.find_element(By.XPATH,'//p[@class="productPrice_price  "]').text
         select_item = Select(driver.find_element(By.XPATH, '//*[@id="athena-product-variation-dropdown-5"]'))
         all_options = select_item.options
-        flavour=[]
+        flavour = []
         for option in all_options:
             flavour.append(option.text)
         time.sleep(3)
         print(img_list)
         return id,img_list,product_name,price,flavour,Timestamp
 
-    def _update_data_dict(self,link):
-            '''This method is used to Scrap the data of each item and save it to the dictionary. 
-            args:
-            link: This link of the product
-            return
-            data_dict: Dictionary
-            The properties of each item.
-            '''
-            id,img_list,product_name,price,flavour,Timestamp = self._retrieve_data(link)
-            data_dict = {'id':'','item':{},'Timestamp':''}
-            
-            data_dict['id'] = id
-            data_dict['item']['img_list'] = img_list
-            data_dict['item']['product_name'] = product_name
-            data_dict['item']['price'] = price
-            data_dict['item']['flavour'] = flavour
-            data_dict['Timestamp'] = Timestamp
-            print(data_dict)
-            filename = data_dict['id']
-            self.__create_folder_json(filename)
-            self.__write_json(data_dict,filename)
-            return data_dict
+    def _update_data_dict(self, link):
+        '''This method is used to Scrap the data of each item and save it to the dictionary. 
+        args:
+        link: This link of the product
+        return
+        data_dict: Dictionary
+        The properties of each item.
+        '''
+        id,img_list,product_name,price,flavour,Timestamp = self._retrieve_data(link)
+        data_dict = {'id':'','item':{},'Timestamp':''}
+        
+        data_dict['id'] = id
+        data_dict['item']['img_list'] = img_list
+        data_dict['item']['product_name'] = product_name
+        data_dict['item']['price'] = price
+        data_dict['item']['flavour'] = flavour
+        data_dict['Timestamp'] = Timestamp
+        print(data_dict)
+        filename = data_dict['id']
+        self.__create_folder_json(filename)
+        self.__write_json(data_dict,filename)
+        return data_dict
 
     @staticmethod
     def __create_folder_json(filename):
@@ -199,24 +199,23 @@ class Scrapper:
             os.makedirs('images')
     
     @staticmethod
-    def __write_json(data,filename):
+    def __write_json(data, filename):
         '''Save the data in JSON format '''
         with open(f'raw_data/{filename}/data.json', 'w') as file:
             json.dump(data, file, indent = 4)
 
-    def _get_20_item_properties(self):
+    def _get_item_properties(self):
         '''
         This method will return a list of properties of 20 items on the specific page
         '''
         link_list = []
-        item_properties=[]
+        item_properties = []
         while True:
             list_of_items = self._create_list_of_website_links()
             print(list_of_items)
             link_list.extend(list_of_items)
             try:
-                for i in range(20):
-                    item_link = link_list[i]
+                for item_link in link_list:
                     item_properties.append(self._update_data_dict(item_link))    
             except NoSuchElementException:
                 break
@@ -231,7 +230,7 @@ class Scrapper:
         for i in range(1,3):
             url = f'https://www.myprotein.com/nutrition/healthy-food-drinks/protein-bars.list?search=protein+bar&pageNumber={i}'
             self.driver.get(url)
-            self._get_20_item_properties()
+            self._get_item_properties()
 
     def _download_img(self,link,filepath):
         '''This method is used to download the image locally.
@@ -240,9 +239,9 @@ class Scrapper:
         filepath: It specifies the file path to save the image locally
         '''
         self.__create_folder_images()
-        img_data = requests.get(link, stream=True, timeout=5)
+        img_data = requests.get(link, stream = True, timeout = 5)
         if img_data.status_code == 200:
-            img_data.raw.decode_content=True
+            img_data.raw.decode_content = True
 
             with open(f'images/{filepath}.jpg', 'wb') as file:
                 shutil.copyfileobj(img_data.raw,file)
@@ -255,7 +254,6 @@ class Scrapper:
 
 if __name__ == "__main__":
     webpage=Scrapper()
-    webpage.load_and_accept_cookies()
     webpage.navigate_to_each_page_and_get_properties()
     webpage.quit()
 
