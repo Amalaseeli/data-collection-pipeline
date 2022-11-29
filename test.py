@@ -10,14 +10,14 @@ class ScrapperTestCase(unittest.TestCase):
 
     @unittest.skip    
     def test_load_and_accept_cookies(self):
-        self.scrapper._load_and_accept_cookies()
+        self.setUp()
         actual=self.scrapper.driver.current_url
         expected='https://www.myprotein.com/'
         self.assertEqual(actual,expected, 'Test failed')
 
     @unittest.skip
     def test_search_product(self):
-        self.scrapper._load_and_accept_cookies()
+        self.setUp()
         time.sleep(2)
         self.scrapper.search_product()
         actual=self.scrapper.driver.current_url
@@ -27,7 +27,7 @@ class ScrapperTestCase(unittest.TestCase):
     
     @unittest.skip
     def test_create_list_of_website_links(self):
-        self.scrapper._load_and_accept_cookies()
+        self.setUp()
         time.sleep(2)
         self.scrapper.search_product()
         time.sleep(1)
@@ -37,7 +37,7 @@ class ScrapperTestCase(unittest.TestCase):
         self.assertAlmostEqual(len(self.item_list),36)
     
     def test_retrieve_data(self):
-        self.scrapper._load_and_accept_cookies()
+        self.setUp()
         time.sleep(2)
         self.scrapper.search_product()
         time.sleep(1)
@@ -53,7 +53,7 @@ class ScrapperTestCase(unittest.TestCase):
 
    
     def test_update_data_dict(self):
-        self.scrapper._load_and_accept_cookies()
+        self.setUp()
         time.sleep(2)
         self.scrapper.search_product()
         time.sleep(1)
@@ -63,7 +63,7 @@ class ScrapperTestCase(unittest.TestCase):
         assert type(item_properties) is dict
     
     
-    def test_get_20_item_properties(self):
+    def test_get_item_properties(self):
         self.assertTrue(True) 
     
     def test__write_json(self):

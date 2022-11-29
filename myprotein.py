@@ -56,11 +56,11 @@ class Scrapper:
         options.add_argument("--disable-dev-shm-usage") #overcome limited resource problems
         options.add_argument("--no-sandbox") # Bypass OS security model
         self.driver = webdriver.Chrome(options = options)
-        self._load_and_accept_cookies()
         driver=self.driver
         driver.maximize_window()
         driver.get('https://www.myprotein.com/')
-
+        self._load_and_accept_cookies()
+        
     def _load_and_accept_cookies(self):
         '''Close the signup page and click accept cookies button'''
         
