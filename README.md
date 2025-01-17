@@ -1,7 +1,8 @@
-# Data Collection Pipeline
+# Automated Data Collection Pipeline for MyProtein Website
 
 
-### It uses Python code to automatically control your browser, extract information from a website
+### Project Overview:
+This project involves the development of an automated Python-based data collection pipeline to extract valuable information from the MyProtein website. The primary goal is to gather product data, including names, descriptions, pricing, ratings, reviews, and nutritional information, to analyze trends, identify popular products, and support data-driven decision-making.
 
 ### Packages and Installation
 <ul>
@@ -11,8 +12,8 @@
 
 ### Basic steps:
 <ol>
-<li>Here let's scrap data from <a href="https://www.myprotein.com/">myprotein</a> website.</li>
-<li>Search for category protein bar</li>
+<li>Scraping Data from <a href="https://www.myprotein.com/">myprotein</a> website.</li>
+<li>Search for "Protein Bar" Category</li>
 <li>Find links for each item</li>
 <li>Retrieve data for each item</li>
 <li>Save the raw_dictionaries locally </li>
